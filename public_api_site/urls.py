@@ -6,6 +6,7 @@ from django.conf.urls.defaults import *
 
 urlpatterns = patterns('',
     (r'^location/$', 'public_api_site.api.views.index'),
+    (r'^test/$', 'public_api_site.api.views.test'),
 
     # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
     # to INSTALLED_APPS to enable admin documentation:
