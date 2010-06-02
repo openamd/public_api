@@ -1,1 +1,7 @@
 For more information, check out http://amd.hope.net/
+
+requirements:
+  cassandra
+  pycassa
+    python[>=2.6.4]
+
