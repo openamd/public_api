@@ -5,8 +5,14 @@ from django.conf.urls.defaults import *
 # admin.autodiscover()
 
 urlpatterns = patterns('',
-    (r'^location/$', 'public_api_site.api.views.index'),
-    (r'^test/$', 'public_api_site.api.views.test'),
+    (r'^locations/$', 'public_api_site.api.locations.index'),
+    (r'^speakers/$',  'public_api_site.api.views.speakers'),
+    (r'^talks/$',     'public_api_site.api.talks.index'),
+    (r'^interests/$', 'public_api_site.api.interests.index'),
+    (r'^stats/$',     'public_api_site.api.stats.index'),
+
+
+    (r'^speaker(?P<name>[^/]+)$', 'api.speakers.view'),
 
     # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
     # to INSTALLED_APPS to enable admin documentation:

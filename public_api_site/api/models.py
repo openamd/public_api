@@ -1,3 +1,3 @@
 from django.db import models
+import pycassa
 
-# Create your models here.

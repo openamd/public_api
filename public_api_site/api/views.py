@@ -31,6 +31,11 @@ def index(request):
     return HttpResponse(res,mimetype='text/plain')
 
 def test(request):
-    return HttpResponse(json.dumps({"functions" : "Function routing is easy with django, everything seems to be working fine here"}),
-			mimetype='text/plain')
+    return HttpResponse(json.dumps({"functions" : "Function routing is easy with django, everything seems to be working fine here"}), mimetype='text/plain')
 	
+def speakers(request):
+    client = pycassa.connect()
+    sp = pycassa.ColumnFamily(client, 'HOPE2008', 'Speakers')
+    last_7 = list(sp.get_range(row_count=7))
+    res = "\n".join(json.dumps(speaker) for speaker in last_7 )
+    return HttpResponse(res,mimetype='text/plain')
