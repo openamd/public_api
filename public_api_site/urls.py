@@ -8,7 +8,7 @@ urlpatterns = patterns('',
     # TODO: remove trailing slashes
     (r'^locations/$', 'public_api_site.api.locations.index'),
     # NOTE: current testing
-    (r'^testing/$',  'public_api_site.api.views.view'),
+    (r'^testing/$',   'public_api_site.api.views.view'),
 
     (r'^speakers/$',  'public_api_site.api.views.speakers'),
     (r'^talks/$',     'public_api_site.api.talks.index'),
