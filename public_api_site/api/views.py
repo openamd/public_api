@@ -3,8 +3,7 @@ from django.http import HttpResponse
 import simplejson as json
 import time
 
-# Not the most elegant of way. Cassandra code should go into the model.
-# I have placed into all in one file for your own clarity. Refactor once you get up to speed.
+# TODO: Refactor Cassandra code into the model
 import pycassa
 
 def true_time(x):
