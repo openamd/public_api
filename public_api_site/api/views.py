@@ -40,10 +40,12 @@ def locations(request):
     client = pycassa.connect()
     location_history = pycassa.ColumnFamily(client, 'HOPE2008', 'LocationHistory',super=True)
 
-    if filtering == "true":
+    if filtering == "false":
+        results =  location_history.get_range(row_count=100)
+    else:
+        results = None
         # FIXME: it hangs here...
         # results = map(lambda x:x[0], location_history.get_range(row_count=100))
-        results = None
         for key in keys:
             if request.REQUEST.has_key(key):
                     datum = request.REQUEST[key]
@@ -56,7 +58,7 @@ def locations(request):
                         results = results.intersect(range)
                     break
 
-    string = "\n".join(results)
+        string = "\n".join(results)
     return HttpResponse(results, mimetype='text/plain')
 
 def users(request):
