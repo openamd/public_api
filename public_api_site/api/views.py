@@ -38,25 +38,26 @@ def locations(request):
             filtering = "true"
 
     client = pycassa.connect()
-    lh = pycassa.ColumnFamily(client, 'HOPE2008', 'LocationHistory',super=True)
-    pr = map(lambda x:x[0], lh.get_range(row_count=100))
+    location_history = pycassa.ColumnFamily(client, 'HOPE2008', 'LocationHistory',super=True)
 
     if filtering == "true":
         # FIXME: it hangs here...
-        # pr = None
+        # results = map(lambda x:x[0], location_history.get_range(row_count=100))
+        results = None
         for key in keys:
             if request.REQUEST.has_key(key):
                     datum = request.REQUEST[key]
-                    r = lh.get_range(super_column=key)
-                    r = set(map(lambda x:x[0], filter(lambda x:x[1] == datum,r)))
-                    if pr == None:
-                        pr = r
+                    # TODO: s/range/rows
+                    range = location_history.get_range(super_column=key)
+                    range = set(map(lambda x:x[0], filter(lambda x:x[1] == datum,range)))
+                    if results == None:
+                        results = range
                     else:
-                        pr = pr.intersect(r)
+                        results = results.intersect(range)
                     break
 
-    string = "\n".join(pr)
-    return HttpResponse(filtering, mimetype='text/plain')
+    string = "\n".join(results)
+    return HttpResponse(results, mimetype='text/plain')
 
 def users(request):
     client = pycassa.connect()
@@ -65,8 +66,6 @@ def users(request):
     # Check if they want a specific user
     if request.REQUEST.has_key('user'):
         user = request.REQUEST['user']
-        x = request.REQUEST['x']
-        y = request.REQUEST['y']
         last_10 =  list(lh.get_range(row_count=10))
         res = "\n".join(json.dumps({"user" : user, 
                                     "x" : r[1][user]['x'], 
