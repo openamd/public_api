@@ -10,6 +10,7 @@ urlpatterns = patterns('',
     (r'^talks[/]$', 'public_api_site.api.views.talks'),
     (r'^interests[/]$', 'public_api_site.api.views.interests'),
     (r'^stats[/]$', 'public_api_site.api.views.stats'),
+    (r'^users[/]$', 'public_api_site.api.views.users'),
 
     # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
     # to INSTALLED_APPS to enable admin documentation:
