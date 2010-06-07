@@ -10,45 +10,105 @@ def true_time(x):
     end_of_days = time.mktime((2012,12,31,0,0,0,0,0,0))
     return time.asctime(time.localtime((end_of_days*1e6-int(x))/1e6))
 
+def speakers(request):
+    client = pycassa.connect()
+    speakers = pycassa.ColumnFamily(client, 'HOPE2008', 'Speakers')
+    
+    if request.REQUEST.has_key('speaker'):
+        speaker = request.REQUEST['speaker']
+
+        # FIXME: speakers.get(speaker) doesn't work...
+        #        TODO: switch to speakers.multiget
+        speakers = speakers.get_range(speaker, row_count=1)
+        results = "\n".join(json.dumps({"speaker" : speaker,
+                                    "name" : s[1]['name']}) for s in speakers)
+    else:
+        results = json.dumps(list(speakers.get_range()))
+        
+    return HttpResponse(results, mimetype='text/plain')
+
 def users(request):
     client = pycassa.connect()
     users = pycassa.ColumnFamily(client, 'HOPE2008', 'Users')
 
-    # Check if they want a specific user
+    # Display a specific user profile
     if request.REQUEST.has_key('id'):
         user = request.REQUEST['id']
-        users = users.get_range(user, row_count=1)
 
-        res = "\n".join(json.dumps({"user" : user,
-                                    "name" : u[1]['name']}) for u in users )
-    # Otherwise dump all profiles
+        # FIXME: speakers.get(speaker) doesn't work...
+        #        TODO: switch to speakers.multiget
+        users = users.get_range(user, row_count=1)
+        results = "\n".join(json.dumps({"user" : user,
+                                        "name" : u[1]['name'],
+                                        "x" : u[1]['x'],
+                                        "y" : u[1]['y'],
+                                        "interests" : u[1]['interests']}) for u in users )
+    # Display all user profiles
     else:
-        res = json.dumps(list(users.get_range()))
-    return HttpResponse(res,mimetype='text/plain')
+        results = json.dumps(list(users.get_range()))
+    return HttpResponse(results, mimetype='text/plain')
 
 def locations(request):
     client = pycassa.connect()
-    lh = pycassa.ColumnFamily(client, 'HOPE2008', 'LocationHistory', super=True)
+    location_history = pycassa.ColumnFamily(client, 'HOPE2008', 'LocationHistory', super=True)
 
-    # Check if they want a specific user
+    # Display the last 10 locations a specific user checked in
     if request.REQUEST.has_key('user'):
         user = request.REQUEST['user']
-        last_10 =  list(lh.get_range(row_count=10))
+        last_10 =  list(location_history.get_range(row_count=10))
         res = "\n".join(json.dumps({"user" : user, 
                                     "x" : r[1][user]['x'], 
                                     "y" : r[1][user]['y'], 
                                     "area" : r[1][user]['area'], 
                                     "button" : r[1][user]['button'], 
                                     "time" : true_time(r[0])}) for r in last_10)
-    # Otherwise the current locations of all the users
+    # Display the current location of all users
     else:
-        lastseen = lh.get_range(row_count=1).next()[1]
+        lastseen = location_history.get_range(row_count=1).next()[1]
         res = "\n".join(json.dumps({"user" : user, 
                                     "x" : lastseen[user]['x'],
                                     "y" : lastseen[user]['y']}) for user in lastseen)
     return HttpResponse(res,mimetype='text/plain')
 
-#def huhnow(request):
+def talks(request):
+    client = pycassa.connect()
+    # TODO: Create indices for each talk type
+    talks = pycassa.ColumnFamily(client, 'HOPE2008', 'Talks', super=True)
+
+    # Display a specific talk
+    if request.REQUEST.has_key('title'):
+        title = request.REQUEST['title']
+        # FIXME: talks.get(title) doesn't work...
+            #        TODO: switch to talks.multiget
+            #        TODO: can we do talks.get_partial_match ?
+        talk =  list(talks.get_range(row_count=1))
+        results = "\n".join(json.dumps({"speakers" : t[1][title]['speakers']
+                                    "title" : title, 
+                                    "abstract" : t[1][title]['abstract'], 
+                                    "time" : t[1][title]['time'], 
+                                    "track" : t[1][title]['track'], 
+                                    "interests" : t[1][title]['interests']) for t in talk) 
+    # Display all talks
+    else:
+        results = json.dumps(list(talks.get_range()))
+        
+    return HttpResponse(res,mimetype='text/plain')
+   
+def stats(request):
+    results = "Statistics here"
+    return HttpResponse(results, mimetype='text/plain')
+
+def interests(request):
+    # TODO: factor into model or read from file and use urls.py
+    interests = ["new tech", "activism", "radio", "lockpicking", "crypto", "privacy", "ethics", "telephones",
+    "social engineering", "hacker spaces", "hardware hacking", "nostalgia", "communities",
+    "science", "government", "network security", "malicious software", "pen testing", "web",
+    "niche hacks", "media"]
+
+    return HttpResponse(interests, mimetype='text/plain')
+
+#def testing(request):
+     # NOTE: this is bad, just make more indices and then intersect them
 #    client = pycassa.connect()
 #
 #    # TODO: s/LocationHistory/LocationHistoryByUser
@@ -66,24 +126,4 @@ def locations(request):
 #           history = filter(lambda row:row[1][key] == request.REQUEST[key], history)
 #
 #    return HttpResponse("\n".join(str(history)), mimetype='text/plain')
-
-#def speakers(request):
-#    client = pycassa.connect()
-#    sp = pycassa.ColumnFamily(client, 'HOPE2008', 'Speakers')
-#    last_7 = list(sp.get_range(row_count=7))
-#    res = "\n".join(json.dumps(speaker) for speaker in last_7 )
-#    return HttpResponse(res,mimetype='text/plain')
-
-#def talks(request):
-#    indices = [ "speaker", "interest" ]
-#    string = "Talks here"
-#    return HttpResponse(string, mimetype='text/plain')
-    
-#def interests(request):
-#    string = "Interests here"
-#    return HttpResponse(string, mimetype='text/plain')
-
-#def stats(request):
-#    string = "Statistics here"
-#    return HttpResponse(string, mimetype='text/plain')
 
