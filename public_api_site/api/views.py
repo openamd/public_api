@@ -1,5 +1,5 @@
 # Create your views here.
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 import simplejson as json
 import time
 
@@ -73,7 +73,7 @@ def locations(request):
 def talks(request):
     client = pycassa.connect()
     # TODO: Create indices for each talk type
-    talks = pycassa.ColumnFamily(client, 'HOPE2008', 'Talks', super=True)
+    talks = pycassa.ColumnFamily(client, 'HOPE2008', 'Talks')
 
     # Display a specific talk
     if request.REQUEST.has_key('title'):
@@ -82,17 +82,17 @@ def talks(request):
             #        TODO: switch to talks.multiget
             #        TODO: can we do talks.get_partial_match ?
         talk =  list(talks.get_range(row_count=1))
-        results = "\n".join(json.dumps({"speakers" : t[1][title]['speakers']
-                                    "title" : title, 
-                                    "abstract" : t[1][title]['abstract'], 
-                                    "time" : t[1][title]['time'], 
-                                    "track" : t[1][title]['track'], 
-                                    "interests" : t[1][title]['interests']) for t in talk) 
+        results = "\n".join(json.dumps({"speakers" : t[1][title]['speakers'],
+                                        "title" : title, 
+                                        "abstract" : t[1][title]['abstract'], 
+                                        "time" : t[1][title]['time'], 
+                                        "track" : t[1][title]['track'], 
+                                        "interests" : t[1][title]['interests']}) for t in talk) 
     # Display all talks
     else:
         results = json.dumps(list(talks.get_range()))
         
-    return HttpResponse(res,mimetype='text/plain')
+    return HttpResponse(results,mimetype='text/plain')
    
 def stats(request):
     results = "Statistics here"
@@ -105,7 +105,10 @@ def interests(request):
     "science", "government", "network security", "malicious software", "pen testing", "web",
     "niche hacks", "media"]
 
-    return HttpResponse(interests, mimetype='text/plain')
+    return HttpResponse(json.dumps(interests), mimetype='text/plain')
+
+def default(request):
+    return HttpResponseRedirect("http://amd.hope.net/openamd_api_1.1.1.html")
 
 #def testing(request):
      # NOTE: this is bad, just make more indices and then intersect them

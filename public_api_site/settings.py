@@ -1,6 +1,6 @@
 # Django settings for public_api_site project.
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
