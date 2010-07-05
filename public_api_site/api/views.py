@@ -52,16 +52,30 @@ def locations(request):
     client = pycassa.connect()
     location_history = pycassa.ColumnFamily(client, 'HOPE2008', 'LocationHistory', super=True)
 
+    prefix = "["
+    postfix = "]"
+
+    limit = 10
+
+    if request.REQUEST.has_key('jsoncallback'):
+       prefix = request.REQUEST['jsoncallback'] + "(" + prefix
+       postfix = postfix + ")"
+
+    if request.REQUEST.has_key('limit'):
+        _limit = request.REQUEST['limit']
+        if _limit.isdigit() and int(_limit) < 20:
+            limit = int(_limit)
+
     # Display the last 10 locations a specific user checked in
     if request.REQUEST.has_key('user'):
         user = request.REQUEST['user']
-        last_10 =  list(location_history.get_range(row_count=10))
+        last_n =  list(location_history.get_range(row_count=limit))
         res = "\n".join(json.dumps({"user" : user, 
                                     "x" : r[1][user]['x'], 
                                     "y" : r[1][user]['y'], 
-                                    "area" : r[1][user]['area'], 
-                                    "button" : r[1][user]['button'], 
-                                    "time" : true_time(r[0])}) for r in last_10)
+                                    # "area" : r[1][user]['area'], 
+                                    # "button" : r[1][user]['button'], 
+                                    "time" : true_time(r[0])}) for r in last_n)
     # Display the current location of all users
     else:
         lastseen = location_history.get_range(row_count=1).next()[1]
