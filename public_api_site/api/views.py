@@ -11,8 +11,8 @@ def true_time(x):
     return time.asctime(time.localtime((end_of_days*1e6-int(x))/1e6))
 
 def speakers(request):
-    client = pycassa.connect()
-    speakers = pycassa.ColumnFamily(client, 'HOPE2008', 'Speakers')
+    client = pycassa.connect('HOPE2010')
+    speakers = pycassa.ColumnFamily(client, 'Speakers')
     
     if request.REQUEST.has_key('speaker'):
         speaker = request.REQUEST['speaker']
@@ -28,8 +28,8 @@ def speakers(request):
     return HttpResponse(results, mimetype='text/plain')
 
 def users(request):
-    client = pycassa.connect()
-    users = pycassa.ColumnFamily(client, 'HOPE2008', 'Users')
+    client = pycassa.connect('HOPE2010')
+    users = pycassa.ColumnFamily(client, 'Users')
 
     # Display a specific user profile
     if request.REQUEST.has_key('id'):
@@ -49,8 +49,8 @@ def users(request):
     return HttpResponse(results, mimetype='text/plain')
 
 def locations(request):
-    client = pycassa.connect()
-    location_history = pycassa.ColumnFamily(client, 'HOPE2008', 'LocationHistory', super=True)
+    client = pycassa.connect('HOPE2010')
+    location_history = pycassa.ColumnFamily(client, 'LocationHistory', super=True)
 
     prefix = "["
     postfix = "]"
@@ -85,9 +85,9 @@ def locations(request):
     return HttpResponse(res,mimetype='text/plain')
 
 def talks(request):
-    client = pycassa.connect()
+    client = pycassa.connect('HOPE2010')
     # TODO: Create indices for each talk type
-    talks = pycassa.ColumnFamily(client, 'HOPE2008', 'Talks')
+    talks = pycassa.ColumnFamily(client, 'Talks')
 
     # Display a specific talk
     if request.REQUEST.has_key('title'):
@@ -126,10 +126,10 @@ def default(request):
 
 #def testing(request):
      # NOTE: this is bad, just make more indices and then intersect them
-#    client = pycassa.connect()
+#    client = pycassa.connect('HOPE2010')
 #
 #    # TODO: s/LocationHistory/LocationHistoryByUser
-#    location_history = pycassa.ColumnFamily(client, 'HOPE2008', 'LocationHistory',super=True)
+#    location_history = pycassa.ColumnFamily(client, 'LocationHistory',super=True)
 #
 #    # TODO: switch to multiget so we can query users=bob,johnny
 #    if request.REQUEST.has_key(index):

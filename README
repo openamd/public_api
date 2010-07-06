@@ -1,7 +1,11 @@
+Copyright 2010 Jonathan Dahan <jedahan@gmail.com>
+Distributed under the terms of the ISC
+
 For more information, check out http://amd.hope.net/
 
 requirements:
-  cassandra
-  pycassa
-    python[>=2.6.4]
-
+  python[>=2.6.4]
+  django[>=1.2.1]
+  simplejson[>=0.2.0]
+  cassandra[>=0.6.3]
+  pycassa[>=cb50bf5c7d5b4fef8bd0b24acebe6a7a1897c4c2]
