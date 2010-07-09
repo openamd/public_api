@@ -1,7 +1,10 @@
-# Create your views here.
-from django.http import HttpResponse, HttpResponseRedirect
-import simplejson as json
 import time
+from django.http import HttpResponse, HttpResponseRedirect
+
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 # TODO: Refactor Cassandra code into the model
 import pycassa
