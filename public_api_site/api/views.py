@@ -101,10 +101,17 @@ def talks(request):
                                         "abstract" : t[1][title]['abstract'], 
                                         "time" : t[1][title]['time'], 
                                         "track" : t[1][title]['track'], 
-                                        "interests" : t[1][title]['interests']}) for t in talk) 
+                                        #"interests" : t[1][title]['interests'],
+                                        }) for t in talk) 
     # Display all talks
     else:
-        results = json.dumps(list(talks.get_range()))
+        results = json.dumps([{"speakers" : json.loads(t[1]['speakers']),
+                               "title" : t[1]['title'],
+                               "abstract" : t[1]['abstract'],
+                               "time" : t[1]['time'],
+                               "track" : t[1]['track'],
+                               #"interests" : json.loads(t[1]['interests']),
+                               } for t in talks.get_range()])
         
     return HttpResponse(results,mimetype='text/plain')
    
